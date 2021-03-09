@@ -1,4 +1,5 @@
-# secretweapon
+# secretweapon 秘密武器
+在Java开发之路上的知识集合。
 Knowledges collection involving any aspects of Java development.
 ## 网络基础
 
