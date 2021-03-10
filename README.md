@@ -335,11 +335,11 @@ Redo log,undo log?
 
 innodb_flush_log_at_trx_commit参数能够控制事务提交时，刷redo log的策略
 
-**策略一：最佳性能**(innodb_flush_log_at_trx_commit=0)每隔一秒，才将Log Buffer中的数据批量write入OS cache，同时MySQL主动fsync。这种策略，如果数据库奔溃，有一秒的数据丢失。 
+**策略一：最佳性能**(innodb_flush_log_at_trx_commit=0)每隔一秒，才将Log Buffer中的数据批量write入OS cache，同时MySQL主动fsync。这种策略，如果数据库崩溃，有一秒的数据丢失。 
 
 **策略二：强一致**(innodb_flush_log_at_trx_commit=1)每次事务提交，都将Log Buffer中的数据write入OS cache，同时MySQL主动fsync。这种策略，是InnoDB的默认配置，为的是保证事务ACID特性。 
 
-**策略三：折衷**(innodb_flush_log_at_trx_commit=2)每次事务提交，都将Log Buffer中的数据write入OS cache；每隔一秒，MySQL主动将OS cache中的数据批量fsync。画外音：磁盘IO次数不确定，因为操作系统的fsync频率并不是MySQL能控制的。这种策略，如果操作系统奔溃，最多有一秒的数据丢失。
+**策略三：折衷**(innodb_flush_log_at_trx_commit=2)每次事务提交，都将Log Buffer中的数据write入OS cache；每隔一秒，MySQL主动将OS cache中的数据批量fsync。画外音：磁盘IO次数不确定，因为操作系统的fsync频率并不是MySQL能控制的。这种策略，如果操作系统崩溃，最多有一秒的数据丢失。
 
 高并发业务，行业内的最佳实践，是：
 innodb_flush_log_at_trx_commit=2
