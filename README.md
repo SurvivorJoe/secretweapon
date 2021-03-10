@@ -6,43 +6,16 @@ Knowledges collection involving any aspects of Java development.
 ### TCP/IP协议
 
 OSI七层参考模型与TCP/IP体系结构，以及参照前两者优点的五层协议。
-<table>
-	<tr>
-	    <th>OSI体系结构</th>
-	    <th>TCP/IP体系结构</th>
-	    <th>五层协议结构</th>  
-	</tr >
-	<tr >
-	    <td>7. 应用层</td>
-	    <td rowspan="3">应用层（各种应用层协议如：TELNET，FTP，SMTP等）</td>
-	    <td rowspan="3">5. 应用层</td>
-	</tr>
-	<tr>
-	    <td>6. 表示层</td>
-	</tr>
-	<tr>
-	    <td>5. 会话层</td>
-	</tr>
-	<tr>
-     <td>4. 传输控制层</td>
-	    <td>传输控制层</td>
-	    <td>4. 传输控制层</td>
-	</tr>
-	<tr>
-     <td>3. 网络层</td>
-     <td>网际层IP</td>
-	    <td>3. 网络层</td>
-	</tr>
-	<tr>
-	    <td>2. 数据链路层</td>
-     <td rowspan="2">网络接口层</td>
-	    <td>2. 数据链路层</td>
-	</tr>
-	<tr>
-	    <td>1. 物理层</td>
-	    <td>1. 物理层</td>
-	</tr>
-</table>
+
+| OSI体系结构  |                 TCP/IP体系结构                  | 五层协议结构  |
+| :----------: | :---------------------------------------------: | ------------- |
+|   7.应用层   |                                                 |               |
+|  6. 表示层   | 应用层（各种应用层协议如：TELNET，FTP，SMTP等） | 5.应用层      |
+|   5.会话层   |                                                 |               |
+| 4.传输控制层 |                                                 | 4.传输控制层  |
+|   3.网络层   |                    网际层IP                     | 3. 网络层     |
+| 2.数据链路层 |                   网络接口层                    | 2. 数据链路层 |
+|   1.物理层   |                                                 | 物理层        |
 
 基于TCP/IP协议，只需要关心运输层以上的部分即可。因为计算机内核程序（kenel）中已经默认实现了运输层，网络层，数据链路层以及物理层。
 #### 三次握手
@@ -87,8 +60,161 @@ TCP是面向连接的，连接双方都应该确认关闭，而后各自释放�
 
 ## Java基础
 
+### io
+
+### 锁
+
+### 线程生命周期
+
+NEW：新创建
+
+RUNNABLE：可运行
+
+BLOCKED：被阻塞
+
+WAITING：等待
+
+TIMED_WAITING：计时等待
+
+TERMINATED：被终止
+
+### 两种线程模型
+
+### 线程池
+
+#### **ThreadPoolExecutor**
+
+所有线程池都调用了这个类
+
+ThreadPoolExecutor(int corePoolSize 核心线程数,
+                          int maximumPoolSize 最大线程数,
+                          long keepAliveTime 最大存活时间,
+                          TimeUnit unit 时间单位,
+             BlockingQueue<Runnable> workQueue 队列,
+                  ThreadFactory threadFactory   线程工厂,
+           RejectedExecutionHandler handler    拒绝策略)
+
+#### **ScheduledThreadPoolExecutor**(定长线程池)
+
+创建一个定长线程池，支持定时及周期性任务执行
+
+ScheduledThreadPoolExecutor(int corePoolSize) {
+    super(	corePoolSize, //核心线程数,就是你传的参数 
+
+​	Integer.*MAX_VALUE* , // *最大线程数*(2^31)-1
+
+​		0 , //存活时间
+
+​	*NANOSECONDS* ,//时间单位*纳秒*
+       new DelayedWorkQueue()); //优先级队列
+
+#### **newCachedThreadPool** **(可缓存线程池)**
+
+可缓存线程池，先查看池中有没有以前建立的线程，如果有，就直接使用。如果没有，就建一个新的线程加入池中，缓存型池子通常用于执行一些生存期很短的异步型任务
+
+newCachedThreadPool() {
+    return new ThreadPoolExecutor(
+
+0, //核心线程数
+
+Integer.*MAX_VALUE*,//最大线程数 2^31 -1
+
+ 60L,//存活时间
+
+ TimeUnit.*SECONDS*,//时间单位
+  new SynchronousQueue<Runnable>()); //同步队列
+
+#### **newFixedThreadPool**(可重用固定个数线程池)
+
+创建一个可重用固定个数的线程池，以共享的无界队列方式来运行这些线程
+
+newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(
+
+nThreads, //核心线程数
+
+nThreads,//最大线程数
+ 0L, //存活时间
+
+TimeUnit.*MILLISECONDS*,//时间单位
+ new LinkedBlockingQueue<Runnable>());//链表缓冲队列
+
+#### **newSingleThreadExecutor**(单例线程池/单一线程池)
+
+创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
+
+ newSingleThreadExecutor() {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(
+
+1, //核心线程数
+
+1,//最大线程数
+   0L,//存活时间
+
+ TimeUnit.*MILLISECONDS*,//时间单位                                
+
+new LinkedBlockingQueue<Runnable>()));//链表缓冲队列
+
+#### 提交优先级和执行优先级
+
+##### 提交优先级
+
+核心线程——队列——非核心线程
+
+##### 执行优先级
+
+核心线程——非核心线程——队列
+
+### 几种常用队列
+
+#### **LinkedBlockingQueue**
+
+ LinkedBlockingQueue大小不固定的BlockingQueue，若其构造时指定大小，生成的BlockingQueue有大小限制，不指定大小，其大小有Integer.MAX_VALUE来决定。其所含的对象是FIFO顺序排序的
+
+#### **BlockingQueue**
+
+#### **ArrayBlockingQueue**
+
+ArrayBlockingQueue（int i）:规定大小的BlockingQueue，其构造必须指定大小。其所含的对象是FIFO（先进先出）顺序排序的
+
+#### *DelayedWorkQueue*
+
+DelayedWorkQueue 阻塞队列
+
+成员变量
+
+// 初始时，数组长度大小。
+
+private static final int INITIAL_CAPACITY = 16;        
+
+// 使用数组来储存队列中的元素。
+
+private RunnableScheduledFuture<?>[] queue = new RunnableScheduledFuture<?>[INITIAL_CAPACITY];        
+
+// 使用lock来保证多线程并发安全问题。
+
+private final ReentrantLock lock = new ReentrantLock();        
+
+// 队列中储存元素的大小
+
+private int size = 0;        
+
+//特指队列头任务所在线程
+
+private Thread leader = null;          
+
+// 当队列头的任务延时时间到了，或者有新的任务变成队列头时，用来唤醒等待线程
+
+private final Condition available = lock.newCondition();
+
+#### 
+
 ## JVM
+### 记忆集在gc回收中的作用
+
 ### GC垃圾收集器
+
 #### 对象存活判断
 判断一个对象是否存活一般有两种方法
 1. 引用计数：每个对象有一个引用计数属性，表示当前对象被引用数，计数为0时可以回收，此方法简单，但是无法解决对象循环引用的问题。
@@ -127,8 +253,44 @@ TCP是面向连接的，连接双方都应该确认关闭，而后各自释放�
 - 在老年代中，对象的存活率较高，没有额外的空间对它进行分配担保，必须使用“标记-清除”或“标记-整理”算法，
 #### 垃圾收集器
 
+### jvm内存模型
+
+![1615372659557](D:\secretweapon\1615372659557.png)
+
+程序计数器：
+
+较小的内存空间， 当前线程执行的字节码的行号指示器；各线程之间独立存储，互不影响；
+
+ java 栈：
+
+线程私有，生命周期和线程，每个方法在执行的同时都会创建一个 栈帧用于存储局部变量表，操作数栈，动态链接，方法出口等信息。方法的执行就对应着栈帧在虚拟机栈中入栈和出栈的过程；栈里面存放着各种基本数据类型和对象的引用；(简单来说就是方法放在里面)
+
+ 本地方法栈：
+
+本地方法栈保存的是native方法的信息，当一个JVM创建的线程调用native方法后，JVM不再为其在虚拟机栈中创建栈帧， JVM只是简单地动态链接并直接调用native方法；(简单来说就是放本地(c++/第三方)方法的,比如sdk包)
+
+ 堆：
+
+Java堆是程序员需要重点关注的一块区域，因为涉及到内存的分配(new关键字，反射等)与回收(回收算法，收集器等)；(对象,字符串常量池)
+
+ 方法区/元空间：
+
+也叫永久区，用于存储已经被虚拟机加载的类信息，常量("zdy","123"等)，静态变量(static变量)等数据。
+
+ (jdk1.8已经将方法区去掉了，将方法区移动到直接内存)(元空间,类放在里面)
+
+ 
+
+ 运行时常量池：
+
+ 运行时常量池是方法区的一部分，用于存放编译期生成的各种字面("zdy","123"等)和符号引用。(元空间一部分,基本类型常量池)
+
+ 
+
+ 直接内存：不是虚拟机运行时数据区的一部分，也不是java虚拟机规范中定义的内存区域；
 
 ### 虚拟机类加载机制
+
 #### 类加载过程
 类从被加载到虚拟机内存开始，到卸载出内存为止，整个生命周期包括：
 1. 加载
@@ -138,7 +300,62 @@ TCP是面向连接的，连接双方都应该确认关闭，而后各自释放�
 5. 初始化
 6. 使用
 7. 卸载<br/>
-其中加载，验证准备和初始化和卸载这五个阶段的顺序是确定的，类的加载过程必须按照这种顺序按部就班地开始，而解析阶段则不一定；为了支持Java语言运行时绑定（也叫动态绑定或者晚期绑定）。需要注意一点，此处阐述的是这些阶段都是按照顺序“开始”，因为这些阶段通常都是互相交叉地混合式进行的，可能在一个阶段的执行过程中，调用，激活另一个阶段。
+  其中加载，验证准备和初始化和卸载这五个阶段的顺序是确定的，类的加载过程必须按照这种顺序按部就班地开始，而解析阶段则不一定；为了支持Java语言运行时绑定（也叫动态绑定或者晚期绑定）。需要注意一点，此处阐述的是这些阶段都是按照顺序“开始”，因为这些阶段通常都是互相交叉地混合式进行的，可能在一个阶段的执行过程中，调用，激活另一个阶段。
+#### 双亲委派
+
+![1615377295126](D:\secretweapon\1615377295126.png)
+
 ## 数据库
 
+### mysql
+
+#### **Innodb事务隔离级别**
+
+读已提交,读未提交,可重复度,串行化
+
+#### **特点**
+
+#### 默认事务隔离级别,为什么?!**
+
+可重复读,因为在5.0之前binlog只支持statement(记录修改的sql语句)这种模式,这种模式在
+
+读已提交这个隔离级别下主从复制是有bug的
+
+#### **可重复读这个事务隔离级别是怎么实现的?!**
+
+乐观锁+快照?
+
+Redo log,undo log?
+
+#### **Mysql事务提交成功后还会丢失吗?**
+
+会丢失,因为执行顺序是先缓冲到日志缓冲区logBuffer,然后mysql调用write写入操作系统缓冲区os cahe,然后再flush到硬盘。而mysql在写入系统缓冲区后就会认定已经提交成功,具体什么时候flush到硬盘,就和mysql没有关系了,如果这个时候操作系统崩溃,就会丢失数据。
+
+#### **解决办法**
+
+innodb_flush_log_at_trx_commit参数能够控制事务提交时，刷redo log的策略
+
+**策略一：最佳性能**(innodb_flush_log_at_trx_commit=0)每隔一秒，才将Log Buffer中的数据批量write入OS cache，同时MySQL主动fsync。这种策略，如果数据库奔溃，有一秒的数据丢失。 
+
+**策略二：强一致**(innodb_flush_log_at_trx_commit=1)每次事务提交，都将Log Buffer中的数据write入OS cache，同时MySQL主动fsync。这种策略，是InnoDB的默认配置，为的是保证事务ACID特性。 
+
+**策略三：折衷**(innodb_flush_log_at_trx_commit=2)每次事务提交，都将Log Buffer中的数据write入OS cache；每隔一秒，MySQL主动将OS cache中的数据批量fsync。画外音：磁盘IO次数不确定，因为操作系统的fsync频率并不是MySQL能控制的。这种策略，如果操作系统奔溃，最多有一秒的数据丢失。
+
+高并发业务，行业内的最佳实践，是：
+innodb_flush_log_at_trx_commit=2
+
 ## Spring
+
+### ioc执行流程
+
+![1615373777134](D:\secretweapon\1615373777134.png)
+
+创建beanFactory——加载配置文件或扫描注解读取bean的定义信息到beanDefinition，beanDefinition实现了beanDefinitionRader接口——执行实现了beanFactoryPostProcessor接口的类——通过反射的方式将类实例化到beanFactory——给类填充属性——在初始化之前执行实现了beanPostProcessor接口的类的before方法——初始化bean执行init方法——执行实现了beanPostProcessor接口的类的after方法——完整对象就创建完成了
+
+### 三级缓存
+
+## spring cloud
+
+## mybatis
+
+### 
